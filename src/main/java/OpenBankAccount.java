@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.io.FileOutputStream;
 
 public class OpenBankAccount {
-    public void createBankAccount(String file) {
+    public static void createBankAccount(String file) {
         try {
             FileOutputStream outputStream = new FileOutputStream(file);
             String data = "잔액: 0";
