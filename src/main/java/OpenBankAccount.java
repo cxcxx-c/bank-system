@@ -1,20 +1,36 @@
 package main.java;
 
-import java.io.IOException;
-import java.io.FileOutputStream;
+import java.io.Serializable;
 
-public class OpenBankAccount {
-    public static void createBankAccount(String file) {
-        try {
-            FileOutputStream outputStream = new FileOutputStream(file);
-            String data = "잔액: 0";
-            byte[] bytes = data.getBytes();
-            outputStream.write(bytes);
-            outputStream.close();
-            System.out.println("새 통장이 성공적으로 생성되었습니다.");
-        } catch (IOException e) {
-            System.err.println("통장을 생성하는 동안 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
-        }
+public class OpenBankAccount implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+    private String name;
+    private int accountBalance;
+
+    public OpenBankAccount(String name, int accountBalance) {
+        this.name = name;
+        this.accountBalance = accountBalance;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAccountBalance() {
+        return accountBalance;
+    }
+
+    public void setAccountBalance(int accountBalance) {
+        this.accountBalance = accountBalance;
+    }
+
+    @Override
+    public String toString() {
+        return "Account Information: {name = '" + name + "', accountbalance = " + accountBalance + "}";
     }
 }
