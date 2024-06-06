@@ -1,6 +1,7 @@
 package main.java;
 
 import java.util.Scanner;
+import java.io.*;
 
 public class BankSystemMain {
     public static void main(String[] args){
@@ -9,30 +10,31 @@ public class BankSystemMain {
         Scanner sc = new Scanner(System.in);
         String input_num = sc.nextLine();
 
+        if (input_num.equals("1")) {
+            System.out.println("이름을 입력해 주세요.");
+            String name = sc.nextLine();
+            int accountBalance = 10000;
+            OpenBankAccount openBankAccount = new OpenBankAccount(name, accountBalance);
 
-        if (input_num.equals("1")){
-            System.out.println("개설하실 통장의 이름을 입력해 주세요.");
-            String accountName = sc.nextLine();
-            String file = "C:\\Users\\copyc\\Desktop\\project\\java\\BankSystem\\"+accountName+".txt";
-            OpenBankAccount.createBankAccount(file);
+            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(name+".txt"))) {
+                oos.writeObject(openBankAccount);
+                System.out.println("개설한 통장이 성공적으로 저장되었습니다.");
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(name+".txt"))) {
+                OpenBankAccount savedAccount = (OpenBankAccount) ois.readObject();
+                System.out.println(savedAccount);
+            }
+            catch (IOException | ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
 
-        if (input_num.equals("2")){
-            System.out.println("입금하실 통장의 이름을 입력해 주세요.");
-            String depositName = sc.nextLine();
-            String file = "C:\\Users\\copyc\\Desktop\\project\\java\\BankSystem\\"+depositName+".txt";
-            System.out.println("입금하실 금액을 입력해 주세요.");
-            String input = sc.nextLine();
-            DepositAccount.inputToBank(file, input);
-        }
+        else if (input_num.equals("2")) {
 
-        if (input_num.equals("3")){
-            System.out.println("출금하실 통장의 이름을 입력해 주세요.");
-            String withdrawalName = sc.nextLine();
-            String file = "C:\\Users\\copyc\\Desktop\\project\\java\\BankSystem\\"+withdrawalName+".txt";
-            System.out.println("출금하실 금액을 입력해 주세요.");
-            String input = sc.nextLine();
-            WithdrawalAccount.outputToBank(file, input);
         }
     }
 }
