@@ -1,85 +1,64 @@
 package main.java;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.util.Scanner;
 
 public class DepositAccount {
-    public static void inputToBank(String file, String input) {
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-        String tempFile = "temp.txt";
+    public void inputToBank() {
 
-        try {
-            reader = new BufferedReader(new FileReader(file));
-            writer = new BufferedWriter(new FileWriter(tempFile));
+        Scanner scanner = new Scanner(System.in);
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                if (line.contains("잔액:")) {
-                    int balanceIndex = line.indexOf("잔액:") + 4;
-                    int currentBalance = Integer.parseInt(line.substring(balanceIndex).trim());
-                    int inputAmount = Integer.parseInt(input);
-                    int newBalance = currentBalance + inputAmount;
-                    line = line.substring(0, balanceIndex) + newBalance;
-                }
-                writer.write(line + "\n");
+        System.out.print("등록하신 통장 이름을 입력해 주세요: ");
+        String filename = scanner.nextLine();
+
+        OpenBankAccount account = null;
+
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(filename + ".txt"))) {
+            account = (OpenBankAccount) ois.readObject();
+            System.out.println("통장 잔액: " + account);
+        } catch (IOException | ClassNotFoundException e) {
+            System.out.println("통장 내역이 존재하지 않습니다: " + e.getMessage());
+            return;
+        }
+
+        System.out.print("입금은 1, 출금은 2를 눌러 주세요: ");
+        int choice = scanner.nextInt();
+
+        if (choice == 1) {
+            System.out.print("입금하실 금액을 입력해 주세요: ");
+            int amount = scanner.nextInt();
+
+            int newBalance = account.getAccountBalance() + amount;
+            account.setAccountBalance(newBalance);
+
+            System.out.println("거래 후 잔액: " + account);
+        }
+        else if (choice == 2) {
+            System.out.print("출금하실 금액을 입력해 주세요: ");
+            int amount = scanner.nextInt();
+
+            if (amount > account.getAccountBalance()) {
+                System.out.println("잔액이 부족합니다.");
+                return;
             }
+
+            int newBalance = account.getAccountBalance() - amount;
+            account.setAccountBalance(newBalance);
+
+            System.out.println("거래 후 잔액: " + account);
+        }
+        else {
+            System.out.println("잘못된 입력입니다.");
+            return;
+        }
+
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(filename + ".txt"))) {
+            oos.writeObject(account);
         }
         catch (IOException e) {
-            System.err.println("입금 과정에서 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
-        }
-        finally {
-            try {
-                if (reader != null) {
-                    reader.close();
-                }
-                if (writer != null) {
-                    writer.close();
-                }
-            } catch (IOException e) {
-                System.err.println("통장의 데이터를 읽는 과정에서 오류가 발생했습니다: " + e.getMessage());
-                e.printStackTrace();
-            }
+            System.out.println("통장 잔액 저장에 오류가 발생했습니다.: " + e.getMessage());
         }
 
-        try {
-            copyFile(tempFile, file);
-            java.io.File temp = new java.io.File(tempFile);
-            if (temp.exists()) {
-                temp.delete();
-            }
-            System.out.println("입력하신 금액이 통장에 성공적으로 입금 되었습니다.");
-        }
-        catch (IOException e) {
-            System.err.println("파일 복사 중 오류가 발생했습니다: " + e.getMessage());
-            e.printStackTrace();
-        }
-    }
-
-    private static void copyFile(String source, String destination) throws IOException {
-        BufferedReader reader = null;
-        BufferedWriter writer = null;
-
-        try {
-            reader = new BufferedReader(new FileReader(source));
-            writer = new BufferedWriter(new FileWriter(destination));
-
-            String line;
-            while ((line = reader.readLine()) != null) {
-                writer.write(line + "\n");
-            }
-        }
-        finally {
-            if (reader != null) {
-                reader.close();
-            }
-            if (writer != null) {
-                writer.close();
-            }
-        }
+        scanner.close();
     }
 }
