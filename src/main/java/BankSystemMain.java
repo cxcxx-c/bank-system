@@ -21,7 +21,7 @@ public class BankSystemMain {
                 System.out.println("개설한 통장이 성공적으로 저장되었습니다.");
             }
             catch (IOException e) {
-                e.printStackTrace();
+                e.printStackTrace(); // exception 세부화시켜서 오류 정보를 정확히 확인할 수 있게 해야 함 (상위 exception 맨 아래로)
             }
 
             try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(name+".txt"))) {
@@ -34,7 +34,8 @@ public class BankSystemMain {
         }
 
         else if (input_num.equals("2")) {
-
+            DepositAccount depositAccount = new DepositAccount();
+            depositAccount.inputToBank();
         }
     }
 }
